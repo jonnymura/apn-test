@@ -68,7 +68,8 @@ export default function Home() {
           </div>
         </div>
 
-        <div className={styles.center} onClick={sendPushNotification}>
+        <div className={styles.center}>
+          <a href="#"  onClick={sendPushNotification}>
           <Image
             className={styles.logo}
             src="/next.svg"
@@ -77,6 +78,7 @@ export default function Home() {
             height={37}
             priority
           />
+          </a>
           <div className={styles.thirteen}>
             <Image
               src="/thirteen.svg"
