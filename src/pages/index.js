@@ -8,34 +8,34 @@ import jwt from 'jsonwebtoken';
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
- 
-    const checkRemotePermission = (permissionData) => {
-      console.log("🚀 ~ file: index.js:23 ~ checkRemotePermission ~ permissionData.permission", permissionData.permission)
-      if (permissionData.permission === 'default') {
-          // This is a new web service URL and its validity is unknown.
-          window.safari.pushNotification.requestPermission(
-              'https://www.jonmittelbronn.dev/api/push-notifications', // The web service URL.
-              'web.dev.jonmittelbronn.www',     // The Website Push ID.
-              {}, // Data that you choose to send to your server to help you identify the user.
-              checkRemotePermission         // The callback function.
-          );
-      }
-      else if (permissionData.permission === 'denied') {
-          
-          // The user said no.
-      }
-      else if (permissionData.permission === 'granted') {
-          // The web service URL is a valid push provider, and the user said yes.
-          // permissionData.deviceToken is now available to use.
-      }
-  };
 
   const sendPushNotification = (e) => {
     
     console.log("🚀 ~ file: index.js:32 ~ sendPushNotification ~ e", e)
     if ('safari' in window && 'pushNotification' in window.safari) {
-      var permissionData = window.safari.pushNotification.permission('web.dev.jonmittelbronn.www');
-      checkRemotePermission(permissionData);
+      const permissionData = window.safari.pushNotification.permission('your.push.notification.website.com');
+      if (permissionData.permission === 'default') {
+        window.safari.pushNotification.requestPermission(
+          'https://your.push.notification.website.com', // Your push notification server URL
+          'your-push-id', // The push notification ID for your website
+          {}, // Any extra data you want to pass along with the request
+          function(permissionData) {
+            if (permissionData.permission === 'granted') {
+              console.log('Push notifications permission granted.');
+            } else if (permissionData.permission === 'denied') {
+              console.warn('Push notifications permission denied.');
+            } else {
+              console.warn('Push notifications permission denied for an unknown reason.');
+            }
+          }
+        );
+      } else if (permissionData.permission === 'denied') {
+        console.warn('Push notifications permission denied.');
+      } else {
+        console.log('Push notifications permission already granted.');
+      }
+    } else {
+      console.warn('Push notifications not supported in this browser.');
     }
   }
 
