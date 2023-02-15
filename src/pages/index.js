@@ -8,17 +8,8 @@ import jwt from 'jsonwebtoken';
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-
-  var p = document.getElementById("foo");
-p.onclick = function() {
-    // Ensure that the user can receive Safari Push Notifications.
-    if ('safari' in window && 'pushNotification' in window.safari) {
-        var permissionData = window.safari.pushNotification.permission('web.com.example.domain');
-        checkRemotePermission(permissionData);
-    }
-};
  
-    const checkRemotePermission = (permissionData) =>{
+    const checkRemotePermission = (permissionData) => {
       if (permissionData.permission === 'default') {
           // This is a new web service URL and its validity is unknown.
           window.safari.pushNotification.requestPermission(
@@ -41,7 +32,9 @@ p.onclick = function() {
     if ('safari' in window && 'pushNotification' in window.safari) {
       var permissionData = window.safari.pushNotification.permission('web.dev.jonmittelbronn.www');
       checkRemotePermission(permissionData);
+    }
   }
+
   return (
     <>
       <Head>
