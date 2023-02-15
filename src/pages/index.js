@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
  
     const checkRemotePermission = (permissionData) => {
+      console.log("🚀 ~ file: index.js:23 ~ checkRemotePermission ~ permissionData.permission", permissionData.permission)
       if (permissionData.permission === 'default') {
           // This is a new web service URL and its validity is unknown.
           window.safari.pushNotification.requestPermission(
@@ -20,6 +21,7 @@ export default function Home() {
           );
       }
       else if (permissionData.permission === 'denied') {
+          
           // The user said no.
       }
       else if (permissionData.permission === 'granted') {
@@ -29,6 +31,8 @@ export default function Home() {
   };
 
   const sendPushNotification = (e) => {
+    
+    console.log("🚀 ~ file: index.js:32 ~ sendPushNotification ~ e", e)
     if ('safari' in window && 'pushNotification' in window.safari) {
       var permissionData = window.safari.pushNotification.permission('web.dev.jonmittelbronn.www');
       checkRemotePermission(permissionData);
