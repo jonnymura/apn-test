@@ -13,7 +13,7 @@ export default function Home() {
       if (permissionData.permission === 'default') {
           // This is a new web service URL and its validity is unknown.
           window.safari.pushNotification.requestPermission(
-              'https://domain.example.com', // The web service URL.
+              'https://www.jonmittelbronn.dev/api/push-notifications', // The web service URL.
               'web.dev.jonmittelbronn.www',     // The Website Push ID.
               {}, // Data that you choose to send to your server to help you identify the user.
               checkRemotePermission         // The callback function.
