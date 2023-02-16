@@ -12,7 +12,7 @@ export default function Home() {
     
     console.log()
     if ('safari' in window && 'pushNotification' in window.safari) {
-      const permissionData = window.safari.pushNotification.permission('www.jonmittelbronn.dev');
+      const permissionData = window.safari.pushNotification.permission('web.dev.jonmittelbronn.www');
       
       if (permissionData.permission === 'default') {
       
