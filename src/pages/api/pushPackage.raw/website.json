@@ -1,0 +1,8 @@
+{
+    "websiteName": "Safari Push Notification Test",
+    "websitePushID": "web.dev.jonmittelbronn.www",
+    "allowedDomains": ["https://www.jonmittelbronn.dev", "https://jonmittelbronn.dev"],
+    "urlFormatString": "https://jonmittelbronn.dev/notification/%@/%@",
+    "authenticationToken": "hskljfhgkd98273498rtbrbgkjbd",
+    "webServiceURL": "https://jonmittelbronn.dev/api/push-notifications/"
+}

@@ -11,13 +11,13 @@ export default function Home() {
 
   const sendPushNotification = (e) => {
     
-    console.log("🚀 ~ file: index.js:32 ~ sendPushNotification ~ e", e)
+    
     if ('safari' in window && 'pushNotification' in window.safari) {
       const permissionData = window.safari.pushNotification.permission('your.push.notification.website.com');
       if (permissionData.permission === 'default') {
         window.safari.pushNotification.requestPermission(
-          'https://your.push.notification.website.com', // Your push notification server URL
-          'your-push-id', // The push notification ID for your website
+          'https://www.jonmittelbronn.dev/api/pushPackage.raw.zip', // The web service URL.
+          'web.dev.jonmittelbronn.www',     
           {}, // Any extra data you want to pass along with the request
           function(permissionData) {
             if (permissionData.permission === 'granted') {
