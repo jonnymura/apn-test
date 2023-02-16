@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
 
-import jwt from 'jsonwebtoken';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,9 +15,9 @@ export default function Home() {
       const permissionData = window.safari.pushNotification.permission('your.push.notification.website.com');
       if (permissionData.permission === 'default') {
         window.safari.pushNotification.requestPermission(
-          'https://www.jonmittelbronn.dev/api/pushPackage.raw.zip', // The web service URL.
+          'https://www.jonmittelbronn.dev/api/push-package', // The web service URL.
           'web.dev.jonmittelbronn.www',     
-          {}, // Any extra data you want to pass along with the request
+          {message:'this is extra data'}, // Any extra data you want to pass along with the request
           function(permissionData) {
             if (permissionData.permission === 'granted') {
               console.log('Push notifications permission granted.');
