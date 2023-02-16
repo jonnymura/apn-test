@@ -3,7 +3,7 @@ const apn = require('apn');
 
 const options = {
     token: {
-      key: '/Users/jonmittelbronn/Playground/ApplePushNotificationsFE/applepush/AuthKey_29CNC8AQDY.p8',
+      key: '/Users/jonmittelbronn/Playground/ApplePushNotificationsFE/apntest/AuthKey_29CNC8AQDY.p8',
       keyId: '29CNC8AQDY',
       teamId: 'KFQ9J5F6GN',
     },

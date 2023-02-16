@@ -10,15 +10,18 @@ export default function Home() {
 
   const sendPushNotification = (e) => {
     
-    
+    console.log()
     if ('safari' in window && 'pushNotification' in window.safari) {
       const permissionData = window.safari.pushNotification.permission('your.push.notification.website.com');
+      console.log("🚀 ~ file: index.js:17 ~ sendPushNotification ~ permissionData.permission : Before", permissionData.permission)
       if (permissionData.permission === 'default') {
+        console.log("🚀 ~ file: index.js:17 ~ sendPushNotification ~ permissionData.permission", permissionData.permission)
         window.safari.pushNotification.requestPermission(
           'https://www.jonmittelbronn.dev/api/push-package', // The web service URL.
           'web.dev.jonmittelbronn.www',     
           {message:'this is extra data'}, // Any extra data you want to pass along with the request
           function(permissionData) {
+            console.log("🚀 ~ file: index.js:17 ~ sendPushNotification ~ permissionData.permission : INSIDE", permissionData.permission)
             if (permissionData.permission === 'granted') {
               console.log('Push notifications permission granted.');
             } else if (permissionData.permission === 'denied') {
