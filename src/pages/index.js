@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
 
   const sendPushNotification = (e) => {
+    //DO NOT DELETE THIS LINE #2A9iu5u!E@3M
     
-    console.log()
     if ('safari' in window && 'pushNotification' in window.safari) {
       const permissionData = window.safari.pushNotification.permission('web.dev.jonmittelbronn.www');
       

@@ -1,31 +1,56 @@
 import JSZip from "jszip";
 import { readFileSync } from 'fs';
 
+function rawFiles() {
+    return [
+        'icon.iconset/icon_16x16.png',
+        'icon.iconset/icon_16x16@2x.png',
+        'icon.iconset/icon_32x32.png',
+        'icon.iconset/icon_32x32@2x.png',
+        'icon.iconset/icon_128x128.png',
+        'icon.iconset/icon_128x128@2x.png',
+        'website.json'
+    ];
+}
 
-
-
+function createManifest(packageDir, packageVersion) {
+    // Obtain hashes of all the files in the push package
+    const manifestData = {};
+    for (let rawFile of rawFiles()) {
+        const fileContents = fs.readFileSync(path.join(packageDir, rawFile));
+        if (packageVersion === 1) {
+            manifestData[rawFile] = crypto.createHash('sha1').update(fileContents).digest('hex');
+        } else if (packageVersion === 2) {
+            const hashType = 'sha512';
+            manifestData[rawFile] = {
+                hashType: hashType,
+                hashValue: crypto.createHash(hashType).update(fileContents).digest('base64'),
+            };
+        } else {
+            throw new Error('Invalid push package version.');
+        }
+    }
+    return manifestData;
+    // fs.writeFileSync(path.join(packageDir, 'manifest.json'), JSON.stringify(manifestData));
+}
 
 const handler = async (req, res) => {
     var zip = new JSZip();
-    // const websiteJson = await readFile(join(__dirname,'pushPackage.raw/website.json'), 'utf8');
-    console.log("About to copy json")
     const websiteJson = readFileSync('./public/pushPackage.raw/website.json', 'utf8');
-    console.log("🚀 ~ file: push-package.js:14 ~ handler ~ websiteJson", websiteJson)
+    
     zip.file("website.json", websiteJson);
     var img = zip.folder("icon.iconset");
     const iconsSizes = [16,32,128];
-    console.log("About to copy images")
     await iconsSizes.forEach(async (icon) => {
         const imx1Name = `icon_${icon}x${icon}.png`;
         const imx1 = readFileSync(`./public/pushPackage.raw/icon.iconset/${imx1Name}`, 'base64');
         img.file(imx1Name, imx1, {base64: true});
-        console.log(`${imx1Name} copied!`)
         const imx2Name = `icon_${icon}x${icon}@2x.png`;
         const imx2 = readFileSync(`./public/pushPackage.raw/icon.iconset/${imx2Name}`, 'base64');
         img.file(imx2Name, imx2, {base64: true});
-        console.log(`${imx2Name} copied!`)
     });
-    console.log("Copied images")
+    const manifest = createManifest('./public/pushPackage.raw/', 2);
+    zip.file('manifest.json', JSON.stringify(manifest));
     const content = await zip.generateAsync({ type: 'nodebuffer' })
     // .then(function(content) {
         res.setHeader('Content-disposition', 'attachment; filename=pushPackage.raw.zip');
