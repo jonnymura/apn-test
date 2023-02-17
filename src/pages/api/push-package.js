@@ -93,7 +93,7 @@ const handler = async (req, res) => {
     zip.file("website.json", websiteJson);
     var img = zip.folder("icon.iconset");
     const iconsSizes = [16,32,128];
-    await iconsSizes.forEach( (icon) => {
+    iconsSizes.forEach( (icon) => {
         const imx1Name = `icon_${icon}x${icon}.png`;
         const imx1 = readFileSync(`./public/pushPackage.raw/icon.iconset/${imx1Name}`, 'base64');
         img.file(imx1Name, imx1, {base64: true});
