@@ -105,6 +105,7 @@ const handler = async (req, res) => {
     zip.file('manifest.json', manifest);
     // const signed = createSignature('./public/pushPackage.raw/', certificatePath, password, manifest);
     // console.log('signed:',signed);
+    
     const content = await zip.generateAsync({ type: 'nodebuffer' })
     // .then(function(content) {
         res.setHeader('Content-disposition', 'attachment; filename=pushPackage.raw.zip');
