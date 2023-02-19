@@ -1,8 +1,10 @@
 import JSZip from "jszip";
-import { readFileSync, writeFileSync } from 'fs';
+import fs, { readFileSync } from 'fs';
 import path from 'path';
-import crypto from 'crypto';
+import crypto from 'crypto'; 
 import forge from 'node-forge';
+
+
 //DO NOT DELETE THIS LINE #2A9iu5u!E@3M
 
 const password = '2A9iu5u!E@3M';
@@ -41,55 +43,77 @@ function createManifest(packageDir, packageVersion) {
     return JSON.stringify(manifestData);
 }
 
-// Creates a signature of the manifest using the push notification certificate.
+// function signature(manifestData, certOrCertPem, privateKeyAssociatedWithCert)
+// {
+//     //A. load the WWWDC cert, always the same
+//     var intermediateBinnary = fs.readFileSync(Path.resolve('.') + '/AppleWWDRCA.pem', 'utf8')
+//     //console.log('pem wwwdc ', intermediateBinnary);
+//     //B. continue signing
+//     var p7 = forge.pkcs7.createSignedData();
+//     p7.content = forge.util.createBuffer(manifestData, 'utf8');
+//     p7.addCertificate(certOrCertPem);
+//     p7.addSigner({
+//         key: privateKeyAssociatedWithCert,
+//         certificate: certOrCertPem,
+//         digestAlgorithm: forge.pki.oids.sha256
+//     });
+//     //p7.addCertificate(intermediateBinnary);
+//     p7.sign({detached: true});
+//     //console.log('p7: ',p7)
+
+//     var pem = forge.pkcs7.messageToPem(p7);
+//     console.log('pem: ',pem)
+
+//     // var lines = pem.split('\n')
+//     // console.log('lines ',lines);
+
+//     // We need to turn into DER according to Apple (sure there are better ways tho)
+//     var preDer = pem.replace('-----BEGIN PKCS7-----\r\n','');
+//     preDer = preDer.replace('\r\n-----END PKCS7-----','');
+//     //console.log('-+pem: ',preDer)
+
+//     // var lines = preDer.split('\n')
+//     // console.log('lines ',lines);
+
+//     return preDer;
+// }
+
 function createSignature(packageDir, certPath, certPassword, manifestData) {
-    // Load the push notification certificate
-    const pkcs12 = readFileSync(certPath, 'binary');
-    
-    // const certs = crypto.pkcs12.parse(pkcs12, certPassword);
-    // const certs = forge.pkcs12.
-    var p12Asn1 = forge.asn1.fromDer(pkcs12);
-    var p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, false, certPassword);
-    
-    
-    var certs = p12.getBags({bagType: forge.pki.oids.certBag});
-    var cert = certs[forge.pki.oids.certBag][0];
-    var keys = p12.getBags({bagType: forge.pki.oids.keyBag});
-    var key = keys[forge.pki.oids.keyBag];
-    // console.log("🚀 ~ file: push-package.js:53 ~ createSignature ~ p12", bag)
-    // writeFileSync('./cert.txt',JSON.stringify(bag, 0, 4))
-    console.log("🚀 ~ file: push-package.js:53 ~ createSignature ~ p12", bag, cert)
-    writeFileSync('./key.txt',JSON.stringify(bag, 0, 4))
-    // console.log("🚀 ~ file: push-package.js:55 ~ createSignature ~ bag", bag)
-    // console.log("🚀 ~ file: push-package.js:54 ~ createSignature ~ certs", certs)
+    const pkcs12 = fs.readFileSync(certPath);
 
+    const keyBase64 = pkcs12.toString('base64');
+    const pkcs12Der = forge.util.decode64(keyBase64);
+    const pkcs12Asn1 = forge.asn1.fromDer(pkcs12Der);
+    const pk12 = forge.pkcs12.pkcs12FromAsn1(pkcs12Asn1, certPassword);
+
+    const certs = pk12.getBags({bagType: forge.pki.oids.pkcs8ShroudedCertBag});
+    const cert = certs[forge.pki.oids.pkcs8ShroudedCertBag][0];
+
+    const bags = pk12.getBags({bagType: forge.pki.oids.pkcs8ShroudedKeyBag});
+    const bag = bags[forge.pki.oids.pkcs8ShroudedKeyBag][0];
     
-    const signaturePath = path.join(pkcs12, 'signature');
+    const privateKey = bag.key;
 
-    // Sign the manifest.json file with the private key from the certificate
-    const certData = cert;
-    const privateKey = key;
+    //return signature(manifestData, cert, privateKey)
 
-    const sign = crypto.createSign('RSA-SHA512');
-    // const manifestData = fs.readFileSync(path.join(packageDir, 'manifest.json'));
-    sign.update(manifestData);
-    const signature = sign.sign({ key: privateKey, passphrase: certPassword });
+    let messageDigest = forge.md.sha256.create();
+    
+    console.log('bag',bag);
 
-    // Convert the signature from PEM to DER
-    const signaturePem = signature.toString('ascii');
-    const match = signaturePem.match(/Content-Disposition:[^\n]+\s*?([A-Za-z0-9+=/\r\n]+)\s*?-----/);
-    if (!match) {
-        throw new Error('Could not extract signature from PEM file.');
-    }
-    const signatureDer = Buffer.from(match[1], 'base64');
-    return {der:signatureDer, path:signaturePath};
-    // fs.writeFileSync(signaturePath, signatureDer);
+    messageDigest.update(manifestData, 'utf8');
+
+    const signature = forge.util.encode64(privateKey.sign(messageDigest));
+    
+    return signature;
+    
 }
 
 const handler = async (req, res) => {
     var zip = new JSZip();
     const websiteJson = readFileSync('./public/pushPackage.raw/website.json', 'utf8');
     
+    console.log('test',req.headers);
+
     zip.file("website.json", websiteJson);
     var img = zip.folder("icon.iconset");
     const iconsSizes = [16,32,128];
@@ -101,11 +125,19 @@ const handler = async (req, res) => {
         const imx2 = readFileSync(`./public/pushPackage.raw/icon.iconset/${imx2Name}`, 'base64');
         img.file(imx2Name, imx2, {base64: true});
     });
+
     const manifest = createManifest('./public/pushPackage.raw/', 2);
-    zip.file('manifest.json', manifest);
-    // const signed = createSignature('./public/pushPackage.raw/', certificatePath, password, manifest);
-    // console.log('signed:',signed);
     
+    //console.log('manifest.json', manifest);
+    
+    zip.file('manifest.json', manifest);
+   
+    const signature = createSignature('./public/pushPackage.raw/', certificatePath, password, manifest);
+    
+    console.log('signature:',signature);
+   
+    zip.file('signature', signature);
+
     const content = await zip.generateAsync({ type: 'nodebuffer' })
     // .then(function(content) {
         res.setHeader('Content-disposition', 'attachment; filename=pushPackage.raw.zip');
