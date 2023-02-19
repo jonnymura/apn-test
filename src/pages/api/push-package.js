@@ -9,6 +9,7 @@ import forge from 'node-forge';
 
 const password = '2A9iu5u!E@3M';
 const certificatePath = './public/certs/Certificates.p12';
+const intermediatePemPath = './public/certs/intermediate.pem';
 forge.options.usePureJavaScript = true;
 
 function rawFiles() {
@@ -43,40 +44,40 @@ function createManifest(packageDir, packageVersion) {
     return JSON.stringify(manifestData);
 }
 
-// function signature(manifestData, certOrCertPem, privateKeyAssociatedWithCert)
-// {
-//     //A. load the WWWDC cert, always the same
-//     var intermediateBinnary = fs.readFileSync(Path.resolve('.') + '/AppleWWDRCA.pem', 'utf8')
-//     //console.log('pem wwwdc ', intermediateBinnary);
-//     //B. continue signing
-//     var p7 = forge.pkcs7.createSignedData();
-//     p7.content = forge.util.createBuffer(manifestData, 'utf8');
-//     p7.addCertificate(certOrCertPem);
-//     p7.addSigner({
-//         key: privateKeyAssociatedWithCert,
-//         certificate: certOrCertPem,
-//         digestAlgorithm: forge.pki.oids.sha256
-//     });
-//     //p7.addCertificate(intermediateBinnary);
-//     p7.sign({detached: true});
-//     //console.log('p7: ',p7)
+function signature(manifestData, certOrCertPem, privateKeyAssociatedWithCert)
+{
+    //A. load the WWWDC cert, always the same
+    var intermediateBinnary = fs.readFileSync(intermediatePemPath, 'utf8')
+    //console.log('pem wwwdc ', intermediateBinnary);
+    //B. continue signing
+    var p7 = forge.pkcs7.createSignedData();
+    p7.content = forge.util.createBuffer(manifestData, 'utf8');
+    p7.addCertificate(certOrCertPem);
+    p7.addSigner({
+        key: privateKeyAssociatedWithCert,
+        certificate: certOrCertPem,
+        digestAlgorithm: forge.pki.oids.sha256
+    });
+    p7.addCertificate(intermediateBinnary);
+    p7.sign({detached: true});
+    //console.log('p7: ',p7)
 
-//     var pem = forge.pkcs7.messageToPem(p7);
-//     console.log('pem: ',pem)
+    var pem = forge.pkcs7.messageToPem(p7);
+    console.log('pem: ',pem)
 
-//     // var lines = pem.split('\n')
-//     // console.log('lines ',lines);
+    // var lines = pem.split('\n')
+    // console.log('lines ',lines);
 
-//     // We need to turn into DER according to Apple (sure there are better ways tho)
-//     var preDer = pem.replace('-----BEGIN PKCS7-----\r\n','');
-//     preDer = preDer.replace('\r\n-----END PKCS7-----','');
-//     //console.log('-+pem: ',preDer)
+    // We need to turn into DER according to Apple (sure there are better ways tho)
+    var preDer = pem.replace('-----BEGIN PKCS7-----\r\n','');
+    preDer = preDer.replace('\r\n-----END PKCS7-----','');
+    //console.log('-+pem: ',preDer)
 
-//     // var lines = preDer.split('\n')
-//     // console.log('lines ',lines);
+    // var lines = preDer.split('\n')
+    // console.log('lines ',lines);
 
-//     return preDer;
-// }
+    return preDer;
+}
 
 function createSignature(packageDir, certPath, certPassword, manifestData) {
     const pkcs12 = fs.readFileSync(certPath);
@@ -87,24 +88,15 @@ function createSignature(packageDir, certPath, certPassword, manifestData) {
     const pk12 = forge.pkcs12.pkcs12FromAsn1(pkcs12Asn1, certPassword);
 
     const certs = pk12.getBags({bagType: forge.pki.oids.pkcs8ShroudedCertBag});
-    const cert = certs[forge.pki.oids.pkcs8ShroudedCertBag][0];
+    const cert = certs[forge.pki.oids.pkcs8ShroudedCertBag][0].cert;
 
     const bags = pk12.getBags({bagType: forge.pki.oids.pkcs8ShroudedKeyBag});
     const bag = bags[forge.pki.oids.pkcs8ShroudedKeyBag][0];
     
     const privateKey = bag.key;
 
-    //return signature(manifestData, cert, privateKey)
+    return signature(manifestData, cert, privateKey)
 
-    let messageDigest = forge.md.sha256.create();
-    
-    console.log('bag',bag);
-
-    messageDigest.update(manifestData, 'utf8');
-
-    const signature = forge.util.encode64(privateKey.sign(messageDigest));
-    
-    return signature;
     
 }
 
