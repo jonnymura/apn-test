@@ -27,7 +27,7 @@ export default function Home() {
           'web.dev.jonmittelbronn.www',     
           {message:'this is extra data'}, // Any extra data you want to pass along with the request
           function(permissionData) {
-      
+            console.log("🚀 ~ file: index.js:45 ~ sendPushNotification ~ permissionData:", permissionData)
             if (permissionData.permission === 'granted') {
               console.log('Push notifications permission granted.');
             } else if (permissionData.permission === 'denied') {
