@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3002",
-    "start:local": "node server-local.js -p 3002 --trace-warnings --unhandled-rejections=strict",
+    "start:local": "NODE_ENV=development node server-local.js -p 3002 --trace-warnings --unhandled-rejections=strict",
     "build": "next build",
     "start": "next start",
     "export": "next export",

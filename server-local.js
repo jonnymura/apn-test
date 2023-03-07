@@ -11,8 +11,8 @@ const port = parseInt(process.env.PORT) || 3002;
 const dev = true;
 const app = next({ dev, dir: __dirname });
 const handle = app.getRequestHandler();
-const key = process.env.LOCAL_KEY || 'certs/jonmittelbronn.dev-key.pem';
-const cert = process.env.LOCAL_CERT || 'certs/jonmittelbronn.dev.pem';
+const key = process.env.LOCAL_KEY || 'certs/jonmittelbronn.local+2-key.pem';
+const cert = process.env.LOCAL_CERT || 'certs/jonmittelbronn.local+2.pem';
 
 console.log("🚀 ~ file: server-local.js:19 ~ process.env:", JSON.stringify(process.env, 0, 4))
 

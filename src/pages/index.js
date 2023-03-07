@@ -2,6 +2,8 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
+// import fs from 'fs';
+// require("dotenv").config('./.env');
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -10,14 +12,18 @@ export default function Home() {
 
   const sendPushNotification = (e) => {
     //DO NOT DELETE THIS LINE #2A9iu5u!E@3M
-    
+    console.log(window.location);
+    const {protocol, hostname, port, pathname} = window.location;
+    const fullWSUrl = `${protocol}//${hostname}:${port}${pathname}api/push-package`;
+    console.log("🚀 ~ file: index.js:19 ~ sendPushNotification ~ fullUrl:", fullWSUrl)
     if ('safari' in window && 'pushNotification' in window.safari) {
+      
       const permissionData = window.safari.pushNotification.permission('web.dev.jonmittelbronn.www');
       
       if (permissionData.permission === 'default') {
       
         window.safari.pushNotification.requestPermission(
-          'https://www.jonmittelbronn.dev/api/push-package', // The web service URL.
+          fullWSUrl, // The web service URL.
           'web.dev.jonmittelbronn.www',     
           {message:'this is extra data'}, // Any extra data you want to pass along with the request
           function(permissionData) {
