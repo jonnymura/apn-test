@@ -17,7 +17,7 @@ export default function Home() {
       if (permissionData.permission === 'default') {
       
         window.safari.pushNotification.requestPermission(
-          'https://www.jonmittelbronn.dev:3002/api/push-package', // The web service URL.
+          'https://www.jonmittelbronn.dev/api/push-package', // The web service URL.
           'web.dev.jonmittelbronn.www',     
           {message:'this is extra data'}, // Any extra data you want to pass along with the request
           function(permissionData) {
